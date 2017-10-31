@@ -1,0 +1,39 @@
+import pandas
+data = pandas.read_csv('/home/oleg/data_sets/titanic.csv', index_col='PassengerId')
+
+print(data['Sex'].value_counts())
+print(data['Survived'].value_counts())
+
+surv = data[data.Survived == 1]['Survived'].count()
+
+
+s = data['Survived'].value_counts()
+print('S: ', s[1])
+
+print('SURV: ', surv)
+
+total = data.Survived.count()
+
+print('TOTAL PASS:' , total)
+
+print('TOTAL SURV %:', surv / total * 100)
+
+first_class = data[data.Pclass == 1]['Pclass'].count()
+
+
+
+print('FIRST CLASS %: ', first_class / total * 100)
+
+print('MEAN AGE: ', data.Age.mean())
+print('MEDIAN AGE: ', data.Age.median())
+
+print('Correlation:', data.SibSp.corr(data.Parch, method='pearson'))
+
+data_name = data[data.Sex == 'female']['Name']
+
+a=[]
+
+for i in data_name:
+    a.append(i.replace('(','').replace(')','').split('.')[1].split())
+print('A: ', a)
+print(pandas.DataFrame.from_dict(a)[0].value_counts())
