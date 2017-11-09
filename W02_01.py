@@ -18,6 +18,7 @@ for i in range(1,51):
     acc.append(cross_val_score(neigh, data, y, cv=kf).mean())
 
 # print(pn.Series(acc).sort_values(ascending=False))
+# Normalize data
 acc = list()
 data = preprocessing.scale(data)
 for i in range(1,51):
