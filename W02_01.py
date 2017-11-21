@@ -4,7 +4,8 @@ from sklearn.model_selection import cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import preprocessing
 
-data = pn.read_csv('/home/oleg/PycharmProjects/ML-Found-Yandex/Data/Wine2.data')
+data = pn.read_csv('./DATA/Wine.data', header=None)
+print(data )
 y = data.res
 del data['res']
 
