@@ -8,7 +8,7 @@ import math
 image = imread('./DATA/W_06_01.jpg')
 image = img_as_float(image)
 
-rgb = pandas.DataFrame(np.reshape(image, (image.shape[0]*image.shape[1],image.shape[2])))
+rgb = pandas.DataFrame(np.reshape(image, (image.shape[0]*image.shape[1],image.shape[2])), columns=['R','G','B'])
 
 kls = KMeans(init='k-means++', random_state=241).fit(rgb)
 
@@ -40,25 +40,51 @@ psnr_mean = 10 * math.log10(1. / np.mean((image - mean_image) ** 2))
 
 print(psnr_median,psnr_mean)
 
-count = 0
-rgb = pandas.DataFrame(np.reshape(image, (image.shape[0] * image.shape[1], image.shape[2])))
-for i in range(1, 21):
-    kls = KMeans(init='k-means++', random_state=241, n_clusters=i).fit(rgb)
-    rgb['Clusters'] = kls.predict(rgb)
+# count = 0
+# rgb = pandas.DataFrame(np.reshape(image, (image.shape[0] * image.shape[1], image.shape[2])))
+# for i in range(1, 21):
+#     kls = KMeans(init='k-means++', random_state=241, n_clusters=i).fit(rgb)
+#     rgb['Clusters'] = kls.predict(rgb)
+#
+#     rgb_groups = rgb.groupby('Clusters').mean().values
+#     rgb_means_mask = [rgb_groups[x] for x in rgb['Clusters']]
+#     mean_image = np.reshape(rgb_means_mask, (image.shape[0], image.shape[1], image.shape[2]))
+#
+#     rgb_groups = rgb.groupby('Clusters').median().values
+#     rgb_medians_mask = [rgb_groups[x] for x in rgb['Clusters']]
+#     median_image = np.reshape(rgb_medians_mask, (image.shape[0], image.shape[1], image.shape[2]))
+#
+#     psnr_median = 10 * math.log10(1. / np.mean((image - median_image) ** 2))
+#     psnr_mean = 10 * math.log10(1. / np.mean((image - mean_image) ** 2))
+#     print(i, end=' - ')
+#     print('median: ', psnr_median, end=', ')
+#     print('mean: ', psnr_mean)
+#     if psnr_median > 20 or psnr_mean > 20:
+#         count = i
+#         break
+k = 0
+for n_clusters in range(1,21):
+    model = KMeans(n_clusters = n_clusters,init='k-means++', random_state=241)
+    model.fit(rgb.loc[:,'R':'B'])
+    rgb['Clusters'] = model.predict(rgb.loc[:,'R':'B'])
 
-    rgb_groups = rgb.groupby('Clusters').mean().values
-    rgb_means_mask = [rgb_groups[x] for x in rgb['Clusters']]
-    mean_image = np.reshape(rgb_means_mask, (image.shape[0], image.shape[1], image.shape[2]))
+    means = rgb.groupby('Clusters').mean().values
+    mean_pixels = [means[x] for x in rgb['Clusters']]
+    mean_image = np.reshape(mean_pixels, (image.shape[0],image.shape[1],image.shape[2]))
 
-    rgb_groups = rgb.groupby('Clusters').median().values
-    rgb_medians_mask = [rgb_groups[x] for x in rgb['Clusters']]
-    median_image = np.reshape(rgb_medians_mask, (image.shape[0], image.shape[1], image.shape[2]))
+    medians = rgb.groupby('Clusters').median().values
+    median_pixels = [medians[x] for x in rgb['Clusters']]
+    median_image = np.reshape(median_pixels, (image.shape[0],image.shape[1],image.shape[2]))
 
-    psnr_median = 10 * math.log10(1. / np.mean((image - median_image) ** 2))
-    psnr_mean = 10 * math.log10(1. / np.mean((image - mean_image) ** 2))
-    print(i, end=' - ')
+    psnr_median = 10 * math.log10(float(1) / np.mean((image - median_image) ** 2))
+    psnr_mean = 10 * math.log10(float(1) / np.mean((image - mean_image) ** 2))
+
+    print(n_clusters, end=' - ')
     print('median: ', psnr_median, end=', ')
     print('mean: ', psnr_mean)
+
     if psnr_median > 20 or psnr_mean > 20:
-        count = i
+        k = n_clusters
         break
+
+print('k:', k)
